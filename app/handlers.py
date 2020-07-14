@@ -1,14 +1,11 @@
-import time
-# import telebot
 from app import bot
 from app import http_requests
+import time
 
-# bot = telebot.TeleBot("tra")
 
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     bot.send_message(message.chat.id, "Enter the number of shows to show: ")
-    # bot.register_next_step_handler(message, handle_page_size)
 
 
 @bot.message_handler(commands=['help'])
@@ -18,12 +15,6 @@ def handle_help(message):
     bot.send_message(message.chat.id, "The commands are:\n"
                                       "\n/help"
                                       "\n/start")
-    # bot.register_next_step_handler(message, handle_page_size)
-
-#
-# @bot.message_handler(content_types=['text'])
-# def handle_text(message):
-#     handle_page_size(message)
 
 
 @bot.message_handler(content_types=['text'])
@@ -32,7 +23,8 @@ def handle_page_size(message):
         shows_number = int(message.text)
         messages = http_requests.ParseData(http_requests.GetData(shows_number))
         for one_message in messages:
-            bot.send_photo(message.chat.id, one_message[2], caption=one_message[0] + '/' + one_message[1])
+            bot.send_photo(message.chat.id, one_message[2], 
+                caption=one_message[0] + '/' + one_message[1])
             time.sleep(1)
     except (TypeError, ValueError):
         bot.send_message(message.chat.id, 'A number, would you?')

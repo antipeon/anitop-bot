@@ -4,6 +4,8 @@ MAX_PER_PAGE = 50
 
 def GetData(shows_number):
     """GetData(shows_number) -> list[obj.json]"""
+
+    # query
     query = '''
     query GetTop($sort: [MediaSort], $page: Int, $perPage: Int) {
         Page (page: $page, perPage: $perPage) {
@@ -27,7 +29,7 @@ def GetData(shows_number):
     }
     '''
 
-    # Define our query variables and values that will be used in the query request
+    # query variables
     variables = {
         'sort': 'POPULARITY_DESC',
         'page': 1,
@@ -36,28 +38,26 @@ def GetData(shows_number):
 
     url = 'https://graphql.anilist.co'
 
-    # Make the HTTP Api request
+    # HTTP Api request
     total_full_pages = shows_number // MAX_PER_PAGE
-    last_page_perPage = shows_number % MAX_PER_PAGE
+    last_page_left = shows_number % MAX_PER_PAGE
     variables['perPage'] = min(MAX_PER_PAGE, shows_number)
     responses = list()
+
     for i in range(total_full_pages):
-        responses.append(requests.post(url, json={'query': query, 'variables': variables}).json())
+        responses.append(requests.post(url, 
+            json={'query': query, 'variables': variables}).json())
         variables['page'] += 1
-    if last_page_perPage > 0:
-        last_el = requests.post(url, json={'query': query, 'variables': variables}).json()
-        # print(last_el, '\n')
+
+    if last_page_left > 0:
+        last_el = requests.post(url, 
+            json={'query': query, 'variables': variables}).json()
         items = last_el['data']['Page']['media']
-        # print(items, '\n')
-        del items[last_page_perPage:len(items)]
-        # print(items, '\n')
+        del items[last_page_left:len(items)]
         last_el['data']['Page']['media'] = items
         responses.append(last_el)
-        # print(last_el)
-        # print(type(last_el), '\n')
-        # print(last_el)
+    
     return responses
-    # print(json.dumps(response.json(), indent=2))
 
 
 cover_size = 'extraLarge'
