@@ -23,8 +23,19 @@ def handle_page_size(message):
         shows_number = int(message.text)
         messages = http_requests.ParseData(http_requests.GetData(shows_number))
         for one_message in messages:
-            bot.send_photo(message.chat.id, one_message[2], 
-                caption=one_message[0] + '/' + one_message[1])
+            caption = ""
+            if (type(one_message[2]) != str):
+                continue
+            if (type(one_message[1]) != str and
+                    type(one_message[0]) != str):
+                continue
+            if (type(one_message[0]) != str):
+                caption = one_message[1]
+            elif (type(one_message[1]) != str):
+                caption = one_message[0]
+            else:
+                caption = one_message[0] + ' / ' + one_message[1]
+            bot.send_photo(message.chat.id, one_message[2], caption=caption)
             time.sleep(1)
     except (TypeError, ValueError):
         bot.send_message(message.chat.id, 'A number, would you?')
